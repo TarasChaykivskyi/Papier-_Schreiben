@@ -3,6 +3,7 @@ const HtmlPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+// const NunjucksWebpackPlugin = require("nunjucks-webpack-plugin");
 
 // const isProd = process.env.NODE_ENV === 'production';
 
@@ -18,7 +19,7 @@ module.exports = {
         path: path.resolve(__dirname, project_folder),
         filename: 'js/index.js'
     },
-    // devtool: 'inline-source-map',
+    devtool: 'inline-source-map',
     plugins: [
         new CleanWebpackPlugin(),
         new HtmlPlugin({
@@ -38,7 +39,15 @@ module.exports = {
                     to: path.resolve(__dirname, project_folder, "fonts"),
                 },
             ],
-        })
+        }),
+        // new NunjucksWebpackPlugin({
+        //     templates: [
+        //         {
+        //             from: path.resolve(__dirname, source_folder, "template.njk"),
+        //             to: "index.html"
+        //         }
+        //     ]
+        // })
     ],
     module: {
         rules: [
@@ -47,6 +56,24 @@ module.exports = {
                 use: [
                     MiniCssExtractPlugin.loader,
                     'css-loader',
+                    {
+                        loader: "postcss-loader",
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    [
+                                        "postcss-preset-env",
+                                        {
+                                            postcssOptions: {
+                                                parser: "postcss-js",
+                                            },
+                                            execute: true
+                                        }
+                                    ]
+                                ]
+                            }
+                        }
+                    },
                     'sass-loader'
                 ]
             },
@@ -61,8 +88,8 @@ module.exports = {
                 }
             },
             {
-                test: /\.(?:ico|gif|png|jpg|jpeg|svg)$/i,
-                type: 'asset/resource',
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                loader: 'url-loader'
             },
             {
                 test: /\.(woff(2)?|eot|ttf|otf)$/,
